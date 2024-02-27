@@ -1,0 +1,34 @@
+stages:
+  - build
+  - build_ersapi
+  - deploy
+
+build:
+  only: [ master ]
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --no-cache -t $CI_REGISTRY_IMAGE:latest ./src
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+
+build_ersapi:
+  only: [ master ]
+  stage: build_ersapi
+  script:
+    - echo "Compiling the code..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --no-cache -t $CI_REGISTRY_IMAGE/ersapi:latest ./src/ersapi
+    - docker push $CI_REGISTRY_IMAGE/ersapi:latest
+
+deploy:
+  only: [ master ]
+  stage: deploy
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - cd "/home/sk8ters/getavax"
+    - docker-compose pull
+    - docker-compose up -d
+    - docker-compose run web alembic upgrade head
+

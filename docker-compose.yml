@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  db:
+    image: docker.io/postgres:14.1
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD
+    volumes:
+      - /opt/deploy/getavax/data:/var/lib/postgresql/data
+    container_name: getavax-db
+  web:
+    image: 'docker-registry.int.ace.premium-minds.com:5000/2023-spring/sk8ters/getavax:latest'
+    ports:
+      - "80:6543"
+    volumes:
+      - './production.ini:/app/production.ini'
+      - './alambic.ini:/app/alambic.ini'
